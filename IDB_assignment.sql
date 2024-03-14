@@ -22,6 +22,7 @@ CREATE TABLE Bus_Route
     Route_ID VARCHAR(10) PRIMARY KEY,
     Operator_ID VARCHAR(10),
     Route_Name VARCHAR(50),
+    Route_Type VARCHAR(50),
     Start_Location VARCHAR(50),
     Destination VARCHAR(50),
 
@@ -45,6 +46,7 @@ CREATE TABLE Trip
     Vehicle_ID VARCHAR(10),
     Route_ID VARCHAR(10),
     Travel_Date DATE,
+    Depart_Time TIME,
     Seats_Reservation INTEGER,
 
     FOREIGN KEY (Vehicle_ID) REFERENCES Bus_Vehicle(Vehicle_ID),
@@ -58,6 +60,8 @@ CREATE TABLE Customer
     Customer_ID VARCHAR(10) PRIMARY KEY,
     Email VARCHAR(50),
     Customer_Name VARCHAR(50),
+    First_Name VARCHAR(50),
+    Last_Name VARCHAR(50),
     Contact VARCHAR(50)
 );
 
@@ -77,7 +81,9 @@ CREATE TABLE Ticket
     Ticket_ID VARCHAR(10) PRIMARY KEY,
     Price VARCHAR(50),
     Seat_Number VARCHAR(50),
-    FareCode VARCHAR(50)
+    FareCode_ID VARCHAR(10),
+
+    FOREIGN KEY (FareCode_ID) REFERENCES FareCode(FareCode_ID)
 );
 
 SELECT * FROM Ticket
@@ -91,6 +97,7 @@ CREATE TABLE Reservation
     Trip_ID VARCHAR(10),
     Ticket_ID VARCHAR(10),
     Reservation_Date DATE,
+    Reservation_Time TIME,
     Reservation_State VARCHAR(50),
     Total_Costs DECIMAL(5,2),
 
@@ -102,3 +109,9 @@ CREATE TABLE Reservation
 );
 
 SELECT * FROM Reservation
+
+CREATE TABLE FareCode
+(
+    FareCode_ID VARCHAR(10) PRIMARY KEY,
+    FareType VARCHAR(10)
+)
