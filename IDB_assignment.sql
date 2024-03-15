@@ -1,8 +1,8 @@
 CREATE TABLE Bus_Operator
 (
-    Operator_ID VARCHAR(10) PRIMARY KEY,
-    Operator_Name VARCHAR(50),
-    Branch VARCHAR(50)
+    Operator_ID VARCHAR(10) PRIMARY KEY NOT NULL,
+    Operator_Name VARCHAR(50) NOT NULL,
+    Branch VARCHAR(50) NOT NULL
 );
 
 -- INSERT INTO Bus_Operator
@@ -17,73 +17,73 @@ CREATE TABLE Bus_Operator
 
 CREATE TABLE Bus_Route
 (
-    Route_ID VARCHAR(10) PRIMARY KEY,
-    Operator_ID VARCHAR(10) REFERENCES Bus_Operator(Operator_ID),
-    Route_Name VARCHAR(50),
-    Route_Type VARCHAR(50),
-    Start_Location VARCHAR(50),
-    Destination VARCHAR(50)
+    Route_ID VARCHAR(10) PRIMARY KEY NOT NULL,
+    Operator_ID VARCHAR(10) REFERENCES Bus_Operator(Operator_ID) NOT NULL,
+    Route_Name VARCHAR(50) NOT NULL,
+    Route_Type VARCHAR(50) NOT NULL,
+    Start_Location VARCHAR(50) NOT NULL,
+    Destination VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE Bus_Vehicle
 (
-    Vehicle_ID VARCHAR(10) PRIMARY KEY,
-    Model VARCHAR(20),
-    Capacity INTEGER
+    Vehicle_ID VARCHAR(10) PRIMARY KEY NOT NULL,
+    Model VARCHAR(20) NOT NULL,
+    Capacity INTEGER NOT NULL
 );
 
 CREATE TABLE Trip
 (
-    Trip_ID VARCHAR(10) PRIMARY KEY,
-    Vehicle_ID VARCHAR(10) REFERENCES Bus_Vehicle(Vehicle_ID),
-    Route_ID VARCHAR(10) REFERENCES Bus_Route(Route_ID),
-    Travel_Date DATE,
-    Depart_Time TIME,
-    Seats_Reservation INTEGER
+    Trip_ID VARCHAR(10) PRIMARY KEY NOT NULL,
+    Vehicle_ID VARCHAR(10) REFERENCES Bus_Vehicle(Vehicle_ID) NOT NULL,
+    Route_ID VARCHAR(10) REFERENCES Bus_Route(Route_ID) NOT NULL,
+    Travel_Date DATE NOT NULL,
+    Depart_Time TIME NOT NULL,
+    Seats_Reservation INTEGER NOT NULL
 );
 
 
 CREATE TABLE Customer
 (
-    Customer_ID VARCHAR(10) PRIMARY KEY,
-    Email VARCHAR(50),
-    Customer_Name VARCHAR(50),
+    Customer_ID VARCHAR(10) PRIMARY KEY NOT NULL,
+    Email VARCHAR(50) NOT NULL,
+    Customer_Name VARCHAR(50) NOT NULL,
     First_Name VARCHAR(50),
-    Last_Name VARCHAR(50),
-    Contact VARCHAR(50)
+    Last_Name VARCHAR(50) NOT NULL,
+    Contact VARCHAR(15) NOT NULL
 );
 
 CREATE TABLE Station
 (
-    Station_ID VARCHAR(10) PRIMARY KEY,
-    Station_Name VARCHAR(50),
-    City VARCHAR(50)
+    Station_ID VARCHAR(10) PRIMARY KEY NOT NULL,
+    Station_Name VARCHAR(50) NOT NULL,
+    City VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE FareCode
 (
-    FareCode_ID VARCHAR(10) PRIMARY KEY,
-    FareType VARCHAR(10)
+    FareCode_ID VARCHAR(10) PRIMARY KEY NOT NULL,
+    FareType VARCHAR(10) NOT NULL
 );
 
 CREATE TABLE Ticket
 (
-    Ticket_ID VARCHAR(10) PRIMARY KEY,
-    Price VARCHAR(50) REFERENCES FareCode(FareCode_ID),
-    Seat_Number VARCHAR(50),
-    FareCode_ID VARCHAR(10)
+    Ticket_ID VARCHAR(10) PRIMARY KEY NOT NULL,
+    Price DECIMAL NOT NULL,
+    Seat_Number VARCHAR(50) NOT NULL,
+    FareCode_ID VARCHAR(10)  REFERENCES FareCode(FareCode_ID) NOT NULL
 );
 
 CREATE TABLE Reservation
 (
-    Reservation_ID VARCHAR(10) PRIMARY KEY,
-    Customer_ID VARCHAR(10) REFERENCES Customer(Customer_ID),
-    Origin_Station VARCHAR(10) REFERENCES Station(Station_ID),
-    Destination_Station VARCHAR(10) REFERENCES Station(Station_ID),
-    Trip_ID VARCHAR(10) REFERENCES Trip(Trip_ID),
-    Ticket_ID VARCHAR(10) REFERENCES Ticket(Ticket_ID),
-    Reservation_Date DATE,
-    Reservation_Time TIME,
-    Reservation_State VARCHAR(50),
-    Total_Costs DECIMAL(5,2)
+    Reservation_ID VARCHAR(10) PRIMARY KEY NOT NULL,
+    Customer_ID VARCHAR(10) REFERENCES Customer(Customer_ID) NOT NULL,
+    Origin_Station VARCHAR(10) REFERENCES Station(Station_ID) NOT NULL,
+    Destination_Station VARCHAR(10) REFERENCES Station(Station_ID) NOT NULL,
+    Trip_ID VARCHAR(10) REFERENCES Trip(Trip_ID) NOT NULL,
+    Ticket_ID VARCHAR(10) REFERENCES Ticket(Ticket_ID) NOT NULL,
+    Reservation_Date DATE NOT NULL,
+    Reservation_Time TIME NOT NULL,
+    Reservation_State VARCHAR(50) NOT NULL,
+    Total_Costs DECIMAL(5,2) NOT NULL
 );
