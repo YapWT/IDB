@@ -39,9 +39,8 @@ CREATE TABLE Trip
     Route_ID VARCHAR(10) REFERENCES Bus_Route(Route_ID) NOT NULL,
     Travel_Date DATE NOT NULL,
     Depart_Time TIME NOT NULL,
-    Seats_Reservation INTEGER NOT NULL
+    Seats_Reserved INTEGER
 );
-
 
 CREATE TABLE Customer
 (
@@ -78,12 +77,9 @@ CREATE TABLE Reservation
 (
     Reservation_ID VARCHAR(10) PRIMARY KEY NOT NULL,
     Customer_ID VARCHAR(10) REFERENCES Customer(Customer_ID) NOT NULL,
-    Origin_Station VARCHAR(10) REFERENCES Station(Station_ID) NOT NULL,
-    Destination_Station VARCHAR(10) REFERENCES Station(Station_ID) NOT NULL,
     Trip_ID VARCHAR(10) REFERENCES Trip(Trip_ID) NOT NULL,
     Ticket_ID VARCHAR(10) REFERENCES Ticket(Ticket_ID) NOT NULL,
     Reservation_Date DATE NOT NULL,
     Reservation_Time TIME NOT NULL,
     Reservation_State VARCHAR(50) NOT NULL,
-    Total_Costs DECIMAL(5,2) NOT NULL
 );
