@@ -449,3 +449,5 @@ select trip.depart_time;
 -- ) AS top_customer ON c.Customer_ID = top_customer.Customer_ID
 -- JOIN Reservation r ON c.Customer_ID = r.Customer_ID
 -- GROUP BY c.First_Name, c.Last_Name;
+
+-- s2 q2
