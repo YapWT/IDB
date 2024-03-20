@@ -372,7 +372,7 @@ group by customer.first_name,customer.last_name
 order by count(*) desc
 limit 1;
 
--- s1 q2
+-- S1Q2
 -- SELECT c.First_Name, c.Last_Name, COUNT(r.Reservation_ID) AS Reservation_Count
 -- FROM Customer c
 -- JOIN (
@@ -437,29 +437,59 @@ having count(reservation.customer_id) > 2
 order by reservation_count desc;
 
 -- S2Q2
--- select * from bus_route
--- select * from bus_operator
--- select * from trip
+select * from bus_route
+select * from bus_operator
+select * from trip
 
--- select bus_operator.operator_id,bus_operator.operator_name
--- from trip
--- inner join bus_operator on bus_route.operator_id = bus_operator.operator_id
--- inner join bus_route on trip.route_id = bus_route.route_id
--- where datediff(hour)
+SELECT br.Operator_ID, bo.Operator_Name, COUNT(DISTINCT t.Trip_ID) AS Trip_Count
+FROM Bus_Route br
+JOIN Trip t ON br.Route_ID = t.Route_ID
+JOIN Bus_Operator bo ON br.Operator_ID = bo.Operator_ID
+WHERE t.Travel_Date BETWEEN '2024-02-01' AND '2024-02-29'
+AND EXISTS (
+    SELECT 1
+    FROM Trip t2
+    WHERE t.Route_ID = t2.Route_ID
+    AND t.Travel_Date = t2.Travel_Date
+    AND (t.Depart_Time - t2.Depart_Time) <= INTERVAL '24 hours'
+    AND (t.Depart_Time - t2.Depart_Time) >= INTERVAL '-24 hours'
+)
+GROUP BY br.Operator_ID, bo.Operator_Name;
 
 -- S2Q3
 select * from bus_route;
 select * from bus_operator;
 select * from trip;
 
-select bus_operator.operator_id,bus_operator.operator_name,count(*) as operator_count
-from bus_route
-inner join bus_operator on bus_route.operator_id = bus_operator.operator_id
-group by bus_operator.operator_id,bus_operator.operator_name
-order by operator_count desc
-select trip.depart_time;
+select
+  bo.Operator_ID,
+  bo.Operator_Name,
+  br.Route_Name,
+  br.Start_Location,
+  br.Destination,
+  t.Depart_Time
+from Bus_Operator bo
+inner join Bus_Route br on bo.Operator_ID = br.Operator_ID
+inner join Trip t on br.Route_ID = t.Route_ID
+group by bo.Operator_ID, bo.Operator_Name, br.Route_Name, br.Start_Location, br.Destination, t.Depart_Time
+order by bo.Operator_ID, br.Route_Name;
 
 -- S2Q4
+select * from bus_route
+select * from trip
+select * from reservation
+
+select br.route_id,br.route_name,tr.depart_time, count(r.trip_id) as trip_count
+from reservation r
+inner join trip tr on r.trip_id = tr.trip_id
+inner join bus_route br on tr.route_id = br.route_id
+group by br.route_id,br.route_name,tr.depart_time
+order by trip_count asc
+
+-- S3Q1
+-- S3Q2
+-- S3Q3
+-- S3Q4
 
 
 -- 1.	Display the bus with the most number of seats sold for business class.
