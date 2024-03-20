@@ -11,10 +11,7 @@ VALUES
 ('OP02', 'Central', 'Hat Yai'),
 ('OP03', 'Marina Bay', 'Singapore'),
 ('OP04', 'JB Square', 'Johor'),
-('OP05', 'Premium Outlet', 'Melaka')
-
-SELECT *
-FROM Bus_Operator
+('OP05', 'Premium Outlet', 'Melaka');
 
 CREATE TABLE Bus_Route
 (
@@ -23,8 +20,7 @@ CREATE TABLE Bus_Route
     Route_Name VARCHAR(50) NOT NULL,
     Route_Type VARCHAR(50) NOT NULL,
     Start_Location VARCHAR(50) NOT NULL,
-    Destination VARCHAR(50) NOT NULL,
-	Destination_Type VARCHAR(50) NOT NULL
+    Destination VARCHAR(50) NOT NULL
 );
 
 INSERT INTO Bus_Route (Route_ID, Operator_ID, Route_Name, Route_Type, Start_Location, Destination)
@@ -34,10 +30,7 @@ VALUES
 ('R03', 'OP02', 'HYS - LGL', 'International', 'Hat Yai Station', 'LEGOLAND'),
 ('R04', 'OP04', 'LGL - SBJ', 'Domestic', 'LEGOLAND', 'Stadium Bukit Jalil'),
 ('R05', 'OP03', 'CNT - HYS', 'International', 'Chinatown', 'Hat Yai Station'),
-('R06', 'OP03', 'CNT - MPO', 'International', 'Chinatown', 'Melaka Premium Outlet')
-
-SELECT *
-FROM Bus_Route
+('R06', 'OP03', 'CNT - MPO', 'International', 'Chinatown', 'Melaka Premium Outlet');
 
 CREATE TABLE Bus_Vehicle
 (
@@ -56,10 +49,7 @@ VALUES
 ('B06', 'UrbanX', 100),
 ('B07', 'TurboBus', 40),
 ('B08', 'Speedster', 60),
-('B09', 'UrbanX', 100)
-
-SELECT *
-FROM Bus_Vehicle
+('B09', 'UrbanX', 100);
 
 CREATE TABLE Trip
 (
@@ -90,10 +80,7 @@ VALUES
 ('T602', 'B06', 'R01', '2024-12-03', '12:00'),
 ('T374', 'B07', 'R04', '2024-03-19', '15:00'),
 ('T518', 'B08', 'R05', '2024-03-26', '11:00'),
-('T816', 'B09', 'R06', '2024-03-29', '14:00')
-
-SELECT *
-FROM Trip
+('T816', 'B09', 'R06', '2024-03-29', '14:00');
 
 CREATE TABLE Customer
 (
@@ -138,10 +125,7 @@ VALUES
 ('C029', 'Jun1234@hotmail.com', 'Jun Yang', 'Jun', 'Yang', '018-4567890'),
 ('C030', 'Meera5678@outlook.com', 'Meera Lim', 'Meera', 'Lim', '013-2345678'),
 ('C031', 'Sajat3287@hotmail.com', 'Sajat Merr', 'Sajat', 'Merr', '019-11145679'),
-('C032', 'Nur5765@gmail.com', 'Nur Sabrina', 'Nur', 'Sabrina', '013-2378680')
-
-SELECT *
-FROM Customer
+('C032', 'Nur5765@gmail.com', 'Nur Sabrina', 'Nur', 'Sabrina', '013-2378680');
 
 CREATE TABLE Station
 (
@@ -156,10 +140,7 @@ VALUES
 ('S02', 'Hat Yai Station', 'Hat Yai'),
 ('S03', 'Chinatown', 'Singapore'),
 ('S04', 'LEGOLAND', 'Johor'),
-('S05', 'Melaka Premium Outlet', 'Melaka')
-
-SELECT *
-FROM Station
+('S05', 'Melaka Premium Outlet', 'Melaka');
 
 CREATE TABLE FareCode
 (
@@ -170,10 +151,8 @@ CREATE TABLE FareCode
 INSERT INTO FareCode (FareCode_ID, FareType)
 VALUES
 ('B', 'Bussiness'),
-('E', 'Economy')
+('E', 'Economy');
 
-SELECT *
-FROM FareCode
 
 CREATE TABLE Ticket
 (
@@ -266,10 +245,7 @@ VALUES
 ('TK7937', 10, 1, 'E'),
 ('TK7938', 10, 12, 'E'),
 ('TK7939', 20, 39, 'B'),
-('TK7940', 20, 26, 'B')
-
-SELECT *
-FROM Ticket
+('TK7940', 20, 26, 'B');
 
 CREATE TABLE Reservation
 (
@@ -365,15 +341,12 @@ VALUES
 ('R554', 'C026', 'T374', 'TK7937', '2024-03-05', '10:24:00', 'Selangor'),
 ('R555', 'C027', 'T225', 'TK7938', '2024-03-07', '16:57:00', 'Johor'),
 ('R556', 'C028', 'T708', 'TK7939', '2024-03-09', '10:54:00', 'Hat Yai'),
-('R557', 'C029', 'T457', 'TK7940', '2024-03-10', '06:39:00', 'Penang')
-
-SELECT *
-FROM Reservation
+('R557', 'C029', 'T457', 'TK7940', '2024-03-10', '06:39:00', 'Penang');
 
 ---------- SELECT ----------
 -- S1Q1
-select * from bus_operator
-select * from bus_route
+select * from bus_operator;
+select * from bus_route;
 
 select bus_operator.operator_id,bus_operator.operator_name
 from bus_route
@@ -383,8 +356,8 @@ order by count(*) desc
 limit 1;
 
 -- S1Q2
-select * from customer
-select * from reservation
+select * from customer;
+select * from reservation;
 
 select customer.first_name,customer.last_name
 from reservation
@@ -408,9 +381,9 @@ having count(*) = (select max(count)
 -- Test --------------------------------------------------------------------------
 
 -- S1Q3
-select * from bus_route
-select * from trip
-select * from reservation
+select * from bus_route;
+select * from trip;
+select * from reservation;
 
 select trip.route_id,count(*) as trip_count
 from reservation
@@ -420,16 +393,16 @@ order by trip_count desc
 limit 1;
 
 -- S1Q4
-select * from trip
+select * from trip;
 
 select trip.route_id,trip.depart_time,count(trip.vehicle_id) as vehicle_count
 from Trip
 group by trip.route_id,trip.depart_time
-order by vehicle_count desc
+order by vehicle_count desc;
 
 -- S2Q1
-select * from reservation
-select * from customer
+select * from reservation;
+select * from customer;
 
 select customer.first_name,customer.last_name, count(reservation.customer_id) as reservation_count
 from reservation
@@ -449,15 +422,30 @@ order by reservation_count desc;
 -- inner join bus_route on trip.route_id = bus_route.route_id
 -- where datediff(hour)
 
+
 -- S2Q3
-select * from bus_route
-select * from bus_operator
-select * from trip
+select * from bus_route;
+select * from bus_operator;
+select * from trip;
 
 select bus_operator.operator_id,bus_operator.operator_name,count(*) as operator_count
 from bus_route
 inner join bus_operator on bus_route.operator_id = bus_operator.operator_id
 group by bus_operator.operator_id,bus_operator.operator_name
 order by operator_count desc
-select trip.depart_time
+select trip.depart_time;
 -- not done yet
+
+
+-- s1 q2
+-- SELECT c.First_Name, c.Last_Name, COUNT(r.Reservation_ID) AS Reservation_Count
+-- FROM Customer c
+-- JOIN (
+--     SELECT Customer_ID
+--     FROM Reservation
+--     GROUP BY Customer_ID
+--     ORDER BY COUNT(*) DESC
+--     LIMIT 1
+-- ) AS top_customer ON c.Customer_ID = top_customer.Customer_ID
+-- JOIN Reservation r ON c.Customer_ID = r.Customer_ID
+-- GROUP BY c.First_Name, c.Last_Name;
