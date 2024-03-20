@@ -369,3 +369,95 @@ VALUES
 
 SELECT *
 FROM Reservation
+
+---------- SELECT ----------
+-- S1Q1
+select * from bus_operator
+select * from bus_route
+
+select bus_operator.operator_id,bus_operator.operator_name
+from bus_route
+inner join bus_operator on bus_route.operator_id = bus_operator.operator_id
+group by bus_route.route_id,bus_operator.operator_id
+order by count(*) desc
+limit 1;
+
+-- S1Q2
+select * from customer
+select * from reservation
+
+select customer.first_name,customer.last_name
+from reservation
+inner join customer on reservation.customer_id = customer.customer_id
+group by customer.first_name,customer.last_name
+order by count(*) desc
+limit 1;
+
+-- Test --------------------------------------------------------------------------
+select reservation.trip_id, count(*) as trip_count
+from reservation
+group by reservation.trip_id
+order by trip_count desc;
+
+select reservation.trip_id
+from reservation
+group by reservation.trip_id
+having count(*) = (select max(count)
+				  from (select reservation.trip_id, count(*)
+					   as count from reservation group by reservation.trip_id));
+-- Test --------------------------------------------------------------------------
+
+-- S1Q3
+select * from bus_route
+select * from trip
+select * from reservation
+
+select trip.route_id,count(*) as trip_count
+from reservation
+inner join trip on reservation.trip_id = trip.trip_id
+group by trip.route_id
+order by trip_count desc
+limit 1;
+
+-- S1Q4
+select * from trip
+
+select trip.route_id,trip.depart_time,count(trip.vehicle_id) as vehicle_count
+from Trip
+group by trip.route_id,trip.depart_time
+order by vehicle_count desc
+
+-- S2Q1
+select * from reservation
+select * from customer
+
+select customer.first_name,customer.last_name, count(reservation.customer_id) as reservation_count
+from reservation
+inner join customer on reservation.customer_id = customer.customer_id
+group by customer.first_name, customer.last_name
+having count(reservation.customer_id) > 2
+order by reservation_count desc;
+
+-- S2Q2
+-- select * from bus_route
+-- select * from bus_operator
+-- select * from trip
+
+-- select bus_operator.operator_id,bus_operator.operator_name
+-- from trip
+-- inner join bus_operator on bus_route.operator_id = bus_operator.operator_id
+-- inner join bus_route on trip.route_id = bus_route.route_id
+-- where datediff(hour)
+
+-- S2Q3
+select * from bus_route
+select * from bus_operator
+select * from trip
+
+select bus_operator.operator_id,bus_operator.operator_name,count(*) as operator_count
+from bus_route
+inner join bus_operator on bus_route.operator_id = bus_operator.operator_id
+group by bus_operator.operator_id,bus_operator.operator_name
+order by operator_count desc
+select trip.depart_time
+-- not done yet
