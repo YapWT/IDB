@@ -471,13 +471,13 @@ GROUP BY t.route_id, o.operator_id, o.operator_name
 ORDER BY route_id ASC;
 
 -- S3Q4
-SELECT r.reservation_date, r.reservation_time, t.travel_date, t.depart_time
+SELECT t.route_id, t.travel_date,t.depart_time, COUNT(*) AS seat_num
 FROM reservation r
 INNER JOIN trip t ON r.trip_id = t.trip_id
-WHERE r.reservation_date >= (t.travel_date - INTERVAL '1 month') AND r.reservation_date <= t.travel_date
-	-- r.date > 1 month before travel
-	-- r.date < travel date
-ORDER BY r.reservation_date, t.travel_date
+WHERE r.reservation_date <= t.travel_date AND r.reservation_date >= (t.travel_date - INTERVAL '1 month')
+	-- r.date < travel date and r.date > 1 month before travel
+GROUP BY t.route_id, t.travel_date,t.depart_time
+ORDER BY seat_num DESC;
 
 
 -- 1.	Find the highest sales and total number of seats sold of bus operators for each month in descending order.
@@ -486,6 +486,39 @@ ORDER BY r.reservation_date, t.travel_date
 -- 4.	List the bus operator ID, bus operator name who have operated the bus for domestic route.
 
 -- S4Q1
+-- Determine the total number of seats sold for each month.
+-- Identify the month of sales.
+-- Calculate the total sales for each month for each bus operator.
+-- Find the highest sales amount for each bus operator.
+-- Arrange the results in descending order based on the highest sales amount.
+
 -- S4Q2
+-- Calculate the total number of seats sold for each bus operator.
+-- Exclude the operators whose total number of seats sold is either 120 or 210.
+-- Retrieve the names and positions of the remaining bus operators.
+
+
 -- S4Q3
+SELECT c.first_name, c.last_name, STRING_AGG(DISTINCT TO_CHAR(r.reservation_date, 'YYYY-MM-DD'), ', ') AS reservation_dates, travel_date
+FROM reservation r
+INNER JOIN customer c ON r.customer_id = c.customer_id
+INNER JOIN trip t ON r.trip_id = t.trip_id
+WHERE r.reservation_date <= t.travel_date AND r.reservation_date >= (t.travel_date - INTERVAL '3 month')
+GROUP BY c.first_name, c.last_name, travel_date;
+ORDER BY t.travel_date;
+
 -- S4Q4
+SELECT o.operator_id, o.operator_name, r.route_type
+FROM bus_route r
+INNER JOIN bus_operator o ON r.operator_id = o.operator_id
+WHERE route_type = 'Domestic'
+ORDER BY operator_id;
+
+-- SELECT * FROM reservation;
+-- SELECT * FROM customer;
+-- SELECT * FROM bus_operator;
+-- SELECT * FROM Bus_route;
+-- SELECT * FROM trip;
+-- SELECT * FROM ticket;
+-- SELECT * FROM bus_vehicle;
+-- SELECT * FROM station;
