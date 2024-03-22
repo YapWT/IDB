@@ -5,7 +5,7 @@ CREATE TABLE Bus_Operator
     Branch VARCHAR(50) NOT NULL
 );
 
-INSERT INTO Bus_Operator (Operator_ID, Operator_Name, Branch)
+INSERT INTO Bus_Operator
 VALUES
 ('OP01', 'Pavillion', 'Bukit Jalil'),
 ('OP02', 'Central', 'Hat Yai'),
@@ -23,7 +23,7 @@ CREATE TABLE Bus_Route
     Destination VARCHAR(50) NOT NULL
 );
 
-INSERT INTO Bus_Route (Route_ID, Operator_ID, Route_Name, Route_Type, Start_Location, Destination)
+INSERT INTO Bus_Route
 VALUES
 ('R01', 'OP01', 'SBJ - HYS', 'International', 'Stadium Bukit Jalil', 'Hat Yai Station'),
 ('R02', 'OP05', 'MPO - CNT', 'Domestic', 'Melaka Premium Outlet', 'Chinatown'),
@@ -39,7 +39,7 @@ CREATE TABLE Bus_Vehicle
     Capacity INTEGER NOT NULL
 );
 
-INSERT INTO Bus_Vehicle (Vehicle_ID, Model, Capacity)
+INSERT INTO Bus_Vehicle
 VALUES
 ('B01', 'Xpress', 50),
 ('B02', 'TurboBus', 40),
@@ -57,11 +57,10 @@ CREATE TABLE Trip
     Vehicle_ID VARCHAR(10) REFERENCES Bus_Vehicle(Vehicle_ID) NOT NULL,
     Route_ID VARCHAR(10) REFERENCES Bus_Route(Route_ID) NOT NULL,
     Travel_Date DATE NOT NULL,
-    Depart_Time TIME NOT NULL,
-    Seats_Reserved INTEGER
+    Depart_Time TIME NOT NULL
 );
 
-INSERT INTO Trip (Trip_ID, Vehicle_ID, Route_ID, Travel_Date, Depart_Time)
+INSERT INTO Trip 
 VALUES
 ('T786', 'B01', 'R02', '2024-01-02', '10:00'),
 ('T429', 'B02', 'R03', '2024-01-05', '12:00'),
@@ -92,7 +91,7 @@ CREATE TABLE Customer
     Contact VARCHAR(15) NOT NULL
 );
 
-INSERT INTO Customer (Customer_ID, Email, Customer_Name, First_Name, Last_Name, Contact)
+INSERT INTO Customer
 VALUES
 ('C001', 'Sanjay1234@gmail.com', 'Sanjay Tan', 'Sanjay', 'Tan', '017-1234567'),
 ('C002', 'Arjun5678@yahoo.com', 'Arjun Kumar', 'Arjun', 'Kumar', '016-9876543'),
@@ -134,7 +133,7 @@ CREATE TABLE Station
     City VARCHAR(50) NOT NULL
 );
 
-INSERT INTO Station (Station_ID, Station_Name, City)
+INSERT INTO Station
 VALUES
 ('S01', 'Stadium Bukit Jalil', 'Bukit Jalil'),
 ('S02', 'Hat Yai Station', 'Hat Yai'),
@@ -148,7 +147,7 @@ CREATE TABLE FareCode
     FareType VARCHAR(10) NOT NULL
 );
 
-INSERT INTO FareCode (FareCode_ID, FareType)
+INSERT INTO FareCode
 VALUES
 ('B', 'Bussiness'),
 ('E', 'Economy');
@@ -162,7 +161,7 @@ CREATE TABLE Ticket
     FareCode_ID VARCHAR(10)  REFERENCES FareCode(FareCode_ID) NOT NULL
 );
 
-INSERT INTO Ticket (Ticket_ID, Price, Seat_Number, FareCode_ID)
+INSERT INTO Ticket
 VALUES
 ('TK7859', 10, 46, 'E'),
 ('TK7860', 10, 57, 'E'),
@@ -258,7 +257,7 @@ CREATE TABLE Reservation
     Reservation_State VARCHAR(50) NOT NULL
 );
 
-INSERT INTO Reservation (Reservation_ID, Customer_ID, Trip_ID, Ticket_ID, Reservation_Date, Reservation_Time, Reservation_State)
+INSERT INTO Reservation
 VALUES 
 ('R476', 'C001', 'T786', 'TK7859', '2023-10-01', '09:52', 'Singapore'),
 ('R477', 'C002', 'T429', 'TK7860', '2023-10-03', '15:41', 'Melaka'),
@@ -394,7 +393,6 @@ FROM trip t
 GROUP BY t.route_id, t.depart_time
 ORDER BY vehicle_count DESC, depart_time, route_id;
 
-
 -- 1.	Display the customer’s first name and last name who has made more than two reservations.
 -- 2.	List the bus operator ID, bus operator name who has the operating the same bus route in 24 hours for the month of February.
 -- Provide the most state of reservation made on February 2024.
@@ -479,24 +477,41 @@ WHERE r.reservation_date <= t.travel_date AND r.reservation_date >= (t.travel_da
 GROUP BY t.route_id, t.travel_date,t.depart_time
 ORDER BY seat_num DESC;
 
-
 -- 1.	Find the highest sales and total number of seats sold of bus operators for each month in descending order.
 -- 2.	List the name and the position of bus operators whose total number of seats sold is neither 120 nor 210.
 -- 3.	Display the customer’s first name and last name who made the reservation 3 months earlier than the traveling date.
 -- 4.	List the bus operator ID, bus operator name who have operated the bus for domestic route.
 
 -- S4Q1
--- Determine the total number of seats sold for each month.
--- Identify the month of sales.
--- Calculate the total sales for each month for each bus operator.
--- Find the highest sales amount for each bus operator.
--- Arrange the results in descending order based on the highest sales amount.
+-- SeatCounts to find the opID and the month with the num_seat
+WITH SeatCounts AS 
+(
+	SELECT b.operator_id, TO_CHAR(reservation_date, 'YYYY-MM') AS month_year, COUNT(r.ticket_id) AS num_seat
+	FROM reservation r
+	INNER JOIN trip t ON r.trip_id = t.trip_id
+	INNER JOIN bus_route b ON t.route_id = b.route_id
+	GROUP BY b.operator_id, month_year
+),
+MaxSeatCounts AS 
+(
+    SELECT operator_id, MAX(num_seat) AS max_seat
+    FROM SeatCounts
+    GROUP BY operator_id
+)
+SELECT SeatCounts.operator_id, STRING_AGG(SeatCounts.month_year, ',') AS reservation_month, MaxSeatCounts.max_seat
+FROM SeatCounts
+INNER JOIN MaxSeatCounts ON SeatCounts.operator_id = MaxSeatCounts.operator_id AND SeatCounts.num_seat = MaxSeatCounts.max_seat
+GROUP BY SeatCounts.operator_id, MaxSeatCounts.max_seat;
 
 -- S4Q2
--- Calculate the total number of seats sold for each bus operator.
--- Exclude the operators whose total number of seats sold is either 120 or 210.
--- Retrieve the names and positions of the remaining bus operators.
-
+SELECT b.operator_id, o.operator_name, COUNT(r.ticket_id) AS num_seat
+FROM reservation r
+INNER JOIN trip t ON r.trip_id = t.trip_id
+INNER JOIN bus_route b ON t.route_id = b.route_id
+INNER JOIN bus_operator o ON b.operator_id = o.operator_id
+GROUP BY b.operator_id, o.operator_name
+HAVING COUNT(r.ticket_id) NOT IN (120, 210)
+ORDER BY num_seat;
 
 -- S4Q3
 SELECT c.first_name, c.last_name, STRING_AGG(DISTINCT TO_CHAR(r.reservation_date, 'YYYY-MM-DD'), ', ') AS reservation_dates, travel_date
@@ -504,7 +519,7 @@ FROM reservation r
 INNER JOIN customer c ON r.customer_id = c.customer_id
 INNER JOIN trip t ON r.trip_id = t.trip_id
 WHERE r.reservation_date <= t.travel_date AND r.reservation_date >= (t.travel_date - INTERVAL '3 month')
-GROUP BY c.first_name, c.last_name, travel_date;
+GROUP BY c.first_name, c.last_name, travel_date
 ORDER BY t.travel_date;
 
 -- S4Q4
