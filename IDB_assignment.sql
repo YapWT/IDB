@@ -86,7 +86,7 @@ CREATE TABLE Customer
     Customer_ID VARCHAR(10) PRIMARY KEY NOT NULL,
     Email VARCHAR(50) NOT NULL,
     Customer_Name VARCHAR(50) NOT NULL,
-    First_Name VARCHAR(50),
+    First_Name VARCHAR(50) NOT NULL,
     Last_Name VARCHAR(50) NOT NULL,
     Contact VARCHAR(15) NOT NULL
 );
