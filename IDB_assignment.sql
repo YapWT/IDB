@@ -395,7 +395,6 @@ ORDER BY vehicle_count DESC, depart_time, route_id;
 
 -- 1.	Display the customer’s first name and last name who has made more than two reservations.
 -- 2.	List the bus operator ID, bus operator name who has the operating the same bus route in 24 hours for the month of February.
--- Provide the most state of reservation made on February 2024.
 -- 3.	Find the total number of bus route operated by each bus operator. Show bus operator id, bus operator name, bus route and timing.
 -- 4.	Display the bus route and timing with the most number of seats unsold in descending order.
 
@@ -408,14 +407,11 @@ HAVING COUNT (r.customer_id) > 2
 ORDER BY reservation_count, c.first_name, c.last_name;
 
 -- S2Q2
-SELECT r.reservation_state, COUNT(r.reservation_state) AS num_reservation
-FROM reservation r
-INNER JOIN customer c ON r.customer_id = c.customer_id
-INNER JOIN trip t ON r.trip_id = t.trip_id
-WHERE r.reservation_date BETWEEN '2024-2-1' AND '2024-2-28'
-GROUP BY r.reservation_state
-ORDER BY num_reservation DESC
-LIMIT 1;
+SELECT r.route_id, STRING_AGG(DISTINCT r.operator_id, ',') AS operator_ids, o.operator_name
+FROM bus_route r
+INNER JOIN bus_operator o ON r.operator_id = o.operator_id
+GROUP BY r.route_id, o.operator_name
+HAVING COUNT(r.route_id) > 1;
 
 -- S2Q3
 SELECT 
@@ -430,18 +426,28 @@ INNER JOIN trip t ON r.route_id = t.route_id
 GROUP BY o.operator_id, o.operator_name;
 
 -- S2Q4
-SELECT b.route_id, b.route_name, t.depart_time, COUNT(r.trip_id) AS trip_count
-FROM reservation r
-INNER JOIN trip t ON r.trip_id = t.trip_id
-INNER JOIN bus_route b ON t.route_id = b.route_id
-GROUP BY b.route_id, b.route_name, t.depart_time
-ORDER BY trip_count;
+WITH unsold_table AS (
+	SELECT t.trip_id, t.route_id, t.travel_date, t.depart_time, v.capacity - COUNT(r.ticket_id) AS un_sold
+	FROM trip t
+	INNER JOIN reservation r ON t.trip_id = r.trip_id
+	INNER JOIN bus_vehicle v ON t.vehicle_id = v.vehicle_id
+	GROUP BY t.trip_id, t.route_id, t.travel_date, t.depart_time, v.capacity
+	ORDER BY un_sold
+),
+max_unsold AS (
+	SELECT route_id, MAX(un_sold) AS max_unsold
+	FROM unsold_table
+	GROUP BY route_id
+)
+SELECT un.route_id, un.travel_date, un.depart_time, m_un.max_unsold
+FROM unsold_table un
+INNER JOIN max_unsold m_un ON un.route_id = m_un.route_id AND un.un_sold = m_un.max_unsold
+ORDER BY max_unsold;
 
 -- 1.	Display the bus with the most number of seats sold for business class.
 -- 2.	List all customers’ first names and last names who did not place any reservations. Sort the records by customer id in descending order.
 -- 3.	Show the bus operator ID, bus operator name, and the total number of buses for each bus route.
 -- 4.	Display the bus route and timing with the most number of seats sold in one hour before departure in descending order.
--- Display the bus route and timing with the most number of seats sold in one month before travel in descending order.
 
 -- S3Q1
 SELECT t.vehicle_id, tk.farecode_id, COUNT(tk.farecode_id) AS class_count
@@ -472,8 +478,8 @@ ORDER BY route_id ASC;
 SELECT t.route_id, t.travel_date,t.depart_time, COUNT(*) AS seat_num
 FROM reservation r
 INNER JOIN trip t ON r.trip_id = t.trip_id
-WHERE r.reservation_date <= t.travel_date AND r.reservation_date >= (t.travel_date - INTERVAL '1 month')
-	-- r.date < travel date and r.date > 1 month before travel
+WHERE r.reservation_date = t.travel_date AND r.reservation_time <= (t.depart_time - INTERVAL '1 hour')
+    -- R.TIME < (1 HOUR BEFORE D.TIME)
 GROUP BY t.route_id, t.travel_date,t.depart_time
 ORDER BY seat_num DESC;
 
@@ -483,7 +489,6 @@ ORDER BY seat_num DESC;
 -- 4.	List the bus operator ID, bus operator name who have operated the bus for domestic route.
 
 -- S4Q1
--- SeatCounts to find the opID and the month with the num_seat
 WITH SeatCounts AS 
 (
 	SELECT b.operator_id, TO_CHAR(reservation_date, 'YYYY-MM') AS month_year, COUNT(r.ticket_id) AS num_seat
@@ -492,16 +497,18 @@ WITH SeatCounts AS
 	INNER JOIN bus_route b ON t.route_id = b.route_id
 	GROUP BY b.operator_id, month_year
 ),
-MaxSeatCounts AS 
+highest AS
 (
-    SELECT operator_id, MAX(num_seat) AS max_seat
-    FROM SeatCounts
-    GROUP BY operator_id
+	SELECT sc.month_year, MAX(sc.num_seat) AS highest_sale
+	FROM SeatCounts sc 
+	GROUP BY sc.month_year
 )
-SELECT SeatCounts.operator_id, STRING_AGG(SeatCounts.month_year, ',') AS reservation_month, MaxSeatCounts.max_seat
-FROM SeatCounts
-INNER JOIN MaxSeatCounts ON SeatCounts.operator_id = MaxSeatCounts.operator_id AND SeatCounts.num_seat = MaxSeatCounts.max_seat
-GROUP BY SeatCounts.operator_id, MaxSeatCounts.max_seat;
+SELECT h.month_year, STRING_AGG(sc.operator_id, ',') AS operator_ids, h.highest_sale
+FROM SeatCounts sc
+INNER JOIN highest h ON sc.month_year = h.month_year
+WHERE sc.num_seat = h.highest_sale
+GROUP BY h.month_year, h.highest_sale
+ORDER BY h.highest_sale DESC;
 
 -- S4Q2
 SELECT b.operator_id, o.operator_name, COUNT(r.ticket_id) AS num_seat
@@ -518,7 +525,7 @@ SELECT c.first_name, c.last_name, STRING_AGG(DISTINCT TO_CHAR(r.reservation_date
 FROM reservation r
 INNER JOIN customer c ON r.customer_id = c.customer_id
 INNER JOIN trip t ON r.trip_id = t.trip_id
-WHERE r.reservation_date <= t.travel_date AND r.reservation_date >= (t.travel_date - INTERVAL '3 month')
+WHERE r.reservation_date <= (t.travel_date - INTERVAL '3 month')
 GROUP BY c.first_name, c.last_name, travel_date
 ORDER BY t.travel_date;
 
